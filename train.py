@@ -35,7 +35,7 @@ def train(model_name='fraud_net'):
             loss.backward()
             optimizer.step()
         
-        valid_loss = evaluate(valid_loader,net):
+        valid_loss = evaluate(valid_loader,net)
         print('Epochs: {}, Valid loss: {}'.format(i, valid_loss))
 
         if valid_loss < best_valid_loss:

@@ -1,4 +1,5 @@
 import torch, torch.nn as nn, torch.nn.functional as F
+import numpy as np
 
 class FraudNet(nn.Module):
     def __init__(self):

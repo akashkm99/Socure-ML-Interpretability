@@ -1,0 +1,5 @@
+dataset/*
+logs
+saved_checkpoints/*
+.ipynd_checkpoints/*
+__pycache__/*
