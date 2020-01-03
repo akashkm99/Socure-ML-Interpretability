@@ -46,7 +46,6 @@ class FraudNet(nn.Module):
             self.fc5 = nn.Linear(self.input_size//32, self.input_size//64)
             self.fc6 = nn.Linear(self.input_size//64, 1)            
 
-
     def forward(self, x):
 
         categorical_embeddings = []
@@ -62,7 +61,7 @@ class FraudNet(nn.Module):
         numerical_features = x[:,self.no_categorical:]
         
         x = torch.cat([categorical_embeddings,numerical_features],dim=1) #(B, sum of embed_output_size + no. of numerical_features)
-        p=0.25
+        p=0.3
         if self.ch ==1:
             x = F.sigmoid(self.fc1(x))
         elif self.ch==2:
@@ -77,7 +76,7 @@ class FraudNet(nn.Module):
             x = F.sigmoid(self.fc3(x))
         elif self.ch==4:
             x = F.relu(self.fc1(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.relu(self.fc2(x))
             x = F.dropout(x, p=p)
             x = F.relu(self.fc3(x))
@@ -85,24 +84,24 @@ class FraudNet(nn.Module):
             x = F.sigmoid(self.fc4(x))
         elif self.ch==5:
             x = F.relu(self.fc1(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.relu(self.fc2(x))
             x = F.dropout(x, p=p)
             x = F.relu(self.fc3(x))
             x = F.dropout(x, p=p)
             x = F.relu(self.fc4(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.sigmoid(self.fc5(x))
         else:
             x = F.relu(self.fc1(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.relu(self.fc2(x))
             x = F.dropout(x, p=p)
             x = F.relu(self.fc3(x))
             x = F.dropout(x, p=p)
             x = F.relu(self.fc4(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.relu(self.fc5(x))
-            x = F.dropout(x, p=p)
+            # x = F.dropout(x, p=p)
             x = F.sigmoid(self.fc6(x))
         return x

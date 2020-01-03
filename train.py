@@ -6,7 +6,7 @@ import sys
 
 def train(model_name='fraud_net', ch=1):
 
-    no_epochs = 10
+    no_epochs = 30
     lr = 1e-3
     batch_size=64
     weight_factor = 40.67    #weight given to class 1
@@ -32,7 +32,7 @@ def train(model_name='fraud_net', ch=1):
             loss = nn.BCELoss(weight=(batch_weights))(y_pred, labels)
             # print ('batch_weights',batch_weights)
             
-            if b % 1000:
+            if b % 100000000:
                 print('Epochs: {}, batch: {} loss: {}'.format(i, b, loss))
                 sys.stdout.flush()
             
