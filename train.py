@@ -2,6 +2,7 @@ import torch
 import torch, torch.nn as nn, torch.nn.functional as F
 from load_data import get_dataset
 from model import FraudNet
+import sys
 
 def train(model_name='fraud_net'):
 
@@ -12,7 +13,7 @@ def train(model_name='fraud_net'):
     print ('Loading dataset ...')
     train_loader, valid_loader = get_dataset(minibatch_size=batch_size)
 
-    net = FraudNet().cuda()
+    net = FraudNet().to(device='cuda')
     print ('Model:')
     print (net)
     
@@ -30,6 +31,7 @@ def train(model_name='fraud_net'):
             
             if b % 1000:
                 print('Epochs: {}, batch: {} loss: {}'.format(i, b, loss))
+                sys.stdout.flush()
             
             optimizer.zero_grad()
             loss.backward()
@@ -62,11 +64,11 @@ def evaluate(test_loader, net):
 def main():
 
     model_name = 'fraud_net'
-
+    print ('cuda',torch.cuda.is_available())
     train(model_name=model_name)
     
     test_loader = get_dataset_test(minibatch_size=256)
-    net = FraudNet().cuda()
+    net = FraudNet().to(device='cuda')
     net.load_state_dict(torch.load('./saved_checkpoints' + model_name + '.th'))
     test_loss = evaluate(test_loader, net)    
     print('Test loss: {}'.format(test_loss))

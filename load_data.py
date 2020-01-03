@@ -43,14 +43,14 @@ def get_dataset(minibatch_size=64):
     X[:, 10:] = sc.fit_transform(X[:, 10:]) # normalize numeric data
 
     X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.1, random_state=1)
-
-    X_train = torch.from_numpy(X_train).cuda()
-    Y_train = torch.from_numpy(Y_train).cuda().float()
+    print ('cuda2',torch.cuda.is_available() )
+    X_train = torch.from_numpy(X_train).to(device='cuda').float()
+    Y_train = torch.from_numpy(Y_train).to(device='cuda').float()
     train = data_utils.TensorDataset(X_train, Y_train)
     train_loader = data_utils.DataLoader(train, batch_size=minibatch_size, shuffle=True)
 
-    X_test = torch.from_numpy(X_test).cuda()
-    Y_test = torch.from_numpy(Y_test).cuda().float()
+    X_test = torch.from_numpy(X_test).to(device='cuda').float()
+    Y_test = torch.from_numpy(Y_test).to(device='cuda').float()
     test = data_utils.TensorDataset(X_test, Y_test)
     test_loader = data_utils.DataLoader(test, batch_size=minibatch_size, shuffle=True)
 
@@ -76,8 +76,8 @@ def get_dataset_test(minibatch_size=64):
     X[:, 10:] = sc.fit_transform(X[:, 10:]) # normalize numeric data
     
     
-    X_train = torch.from_numpy(X).cuda()
-    Y_train = torch.from_numpy(y).cuda().float()
+    X_train = torch.from_numpy(X).to(device='cuda')
+    Y_train = torch.from_numpy(y).to(device='cuda').float()
     train = data_utils.TensorDataset(X, y)
     train_loader = data_utils.DataLoader(train, batch_size=minibatch_size, shuffle=True)
 

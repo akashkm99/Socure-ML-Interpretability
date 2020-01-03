@@ -8,7 +8,7 @@ class FraudNet(nn.Module):
         self.no_categorical = 10
         self.no_numerical = 40
 
-        self.embedding_input_sizes = [501, 264, 60, 61, 107, 11624, 4, 3, 104, 5] # number of classes
+        self.embedding_input_sizes = [502, 266, 60, 61, 109, 11625, 4, 3, 106, 5] # number of classes
         self.embedding_output_sizes = [10,5,3,2,3,20,2,2,2,2] # output embedding shape
 
         embed_list = []
@@ -29,8 +29,11 @@ class FraudNet(nn.Module):
 
         categorical_embeddings = []
 
+        categorical_features = x[:,:self.no_categorical].long()
+        #print (categorical_features)
         for i in range(self.no_categorical):
-            embed = self.embedding_layers[i](x[:,i])  #(B,embed_output_size)
+            #print ('i',i)
+            embed = self.embedding_layers[i](categorical_features[:,i])  #(B,embed_output_size)
             categorical_embeddings.append(embed)
 
         categorical_embeddings = torch.cat(categorical_embeddings,dim=1) # (B, sum of embed_output_size)
