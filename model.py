@@ -7,7 +7,7 @@ class FraudNet(nn.Module):
 
         self.no_categorical = 10
         self.no_numerical = 40
-
+        self.ch = ch
         self.embedding_input_sizes = [502, 266, 60, 61, 109, 11625, 4, 3, 106, 5] # number of classes
         self.embedding_output_sizes = [10,5,3,2,3,20,2,2,2,2] # output embedding shape
 
@@ -18,28 +18,34 @@ class FraudNet(nn.Module):
         self.embedding_layers = nn.ModuleList(embed_list)
 
         self.input_size = np.array(self.embedding_output_sizes).sum() + self.no_numerical
-        if ch==1:
+        if self.ch==1:
             self.fc1 = nn.Linear(self.input_size, 1)
-        if ch==2:
-            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
-            self.fc2 = nn.Linear(self.input_size/2, 1)
-        if ch==3:
-            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
-            self.fc2 = nn.Linear(self.input_size/2, self.input_size/4)
-            self.fc3 = nn.Linear(self.input_size/4, 1)
-        if ch==4:
-            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
-            self.fc2 = nn.Linear(self.input_size/2, self.input_size/4)
-            self.fc3 = nn.Linear(self.input_size/4, self.input_size/8)
-            self.fc4 = nn.Linear(self.input_size/4, 1)
-        if ch==5:
-            
-            
-            
-#         self.fc2 = nn.Linear(16, 18)
-#         self.fc3 = nn.Linear(18, 20)
-#         self.fc4 = nn.Linear(20, 24)
-#         self.fc5 = nn.Linear(24, 1)
+        elif self.ch==2:
+            self.fc1 = nn.Linear(self.input_size, self.input_size//2)
+            self.fc2 = nn.Linear(self.input_size//2, 1)
+        elif self.ch==3:
+            self.fc1 = nn.Linear(self.input_size, self.input_size//2)
+            self.fc2 = nn.Linear(self.input_size//2, self.input_size//4)
+            self.fc3 = nn.Linear(self.input_size//4, 1)
+        elif self.ch==4:
+            self.fc1 = nn.Linear(self.input_size, self.input_size//2)
+            self.fc2 = nn.Linear(self.input_size//2, self.input_size//4)
+            self.fc3 = nn.Linear(self.input_size//4, self.input_size//8)
+            self.fc4 = nn.Linear(self.input_size//8, 1)
+        elif self.ch==5:
+            self.fc1 = nn.Linear(self.input_size, self.input_size//2)
+            self.fc2 = nn.Linear(self.input_size//2, self.input_size//4)
+            self.fc3 = nn.Linear(self.input_size//4, self.input_size//8)
+            self.fc4 = nn.Linear(self.input_size//8, self.input_size//32)
+            self.fc5 = nn.Linear(self.input_size//32, 1)
+        else:
+            self.fc1 = nn.Linear(self.input_size, self.input_size//2)
+            self.fc2 = nn.Linear(self.input_size//2, self.input_size//4)
+            self.fc3 = nn.Linear(self.input_size//4, self.input_size//8)
+            self.fc4 = nn.Linear(self.input_size//8, self.input_size//32)
+            self.fc5 = nn.Linear(self.input_size//32, self.input_size//64)
+            self.fc6 = nn.Linear(self.input_size//64, 1)            
+
 
     def forward(self, x):
 
@@ -56,12 +62,47 @@ class FraudNet(nn.Module):
         numerical_features = x[:,self.no_categorical:]
         
         x = torch.cat([categorical_embeddings,numerical_features],dim=1) #(B, sum of embed_output_size + no. of numerical_features)
-
-        x = F.sigmoid(self.fc1(x))
-#         x = F.relu(self.fc2(x))
-#         x = F.dropout(x, p=0.25)
-#         x = F.relu(self.fc3(x))
-#         x = F.relu(self.fc4(x))
-#         x = F.sigmoid(self.fc5(x))
-
+        p=0.25
+        if self.ch ==1:
+            x = F.sigmoid(self.fc1(x))
+        elif self.ch==2:
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, p=p)
+            x = F.sigmoid(self.fc2(x))
+        elif self.ch==3:
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc2(x))
+            x = F.dropout(x, p=p)
+            x = F.sigmoid(self.fc3(x))
+        elif self.ch==4:
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc2(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc3(x))
+            x = F.dropout(x, p=p)
+            x = F.sigmoid(self.fc4(x))
+        elif self.ch==5:
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc2(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc3(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc4(x))
+            x = F.dropout(x, p=p)
+            x = F.sigmoid(self.fc5(x))
+        else:
+            x = F.relu(self.fc1(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc2(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc3(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc4(x))
+            x = F.dropout(x, p=p)
+            x = F.relu(self.fc5(x))
+            x = F.dropout(x, p=p)
+            x = F.sigmoid(self.fc6(x))
         return x

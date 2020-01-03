@@ -1,5 +1,5 @@
-./dataset/*
-logs
-./saved_checkpoints/*
-./.ipynd_checkpoints/*
-./__pycache__/*
+.ipynb_checkpoints/
+__pycache__/
+dataset/
+saved_checkpoints/
+logs/
