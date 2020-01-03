@@ -42,19 +42,27 @@ def get_dataset(minibatch_size=64):
     
     X[:, 10:] = sc.fit_transform(X[:, 10:]) # normalize numeric data
 
-    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.1, random_state=1)
+    X_train, X_test, Y_train, Y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    X_val, X_test, Y_val, Y_test = train_test_split(X_test, Y_test, test_size=0.5, random_state=1)
+    
     print ('cuda2',torch.cuda.is_available() )
+    
     X_train = torch.from_numpy(X_train).to(device='cuda').float()
     Y_train = torch.from_numpy(Y_train).to(device='cuda').float()
     train = data_utils.TensorDataset(X_train, Y_train)
     train_loader = data_utils.DataLoader(train, batch_size=minibatch_size, shuffle=True)
+
+    X_val = torch.from_numpy(X_val).to(device='cuda').float()
+    Y_val = torch.from_numpy(Y_val).to(device='cuda').float()
+    val = data_utils.TensorDataset(X_val, Y_val)
+    val_loader = data_utils.DataLoader(val, batch_size=minibatch_size, shuffle=True)
 
     X_test = torch.from_numpy(X_test).to(device='cuda').float()
     Y_test = torch.from_numpy(Y_test).to(device='cuda').float()
     test = data_utils.TensorDataset(X_test, Y_test)
     test_loader = data_utils.DataLoader(test, batch_size=minibatch_size, shuffle=True)
 
-    return train_loader, test_loader
+    return train_loader, val_loader, test_loader
 
 def get_dataset_test(minibatch_size=64):
 
@@ -67,9 +75,7 @@ def get_dataset_test(minibatch_size=64):
     data.isnull().sum().any()  #check for n/a
     """
 
-    y = data['model_score'].values # extracting labels
-    
-    X = data.drop(columns="model_score")
+    X = data#.drop(columns="model_score")
     X = preprocess(X).values
     sc = StandardScaler()
     
@@ -77,8 +83,7 @@ def get_dataset_test(minibatch_size=64):
     
     
     X_train = torch.from_numpy(X).to(device='cuda')
-    Y_train = torch.from_numpy(y).to(device='cuda').float()
-    train = data_utils.TensorDataset(X, y)
+    train = data_utils.TensorDataset(X)
     train_loader = data_utils.DataLoader(train, batch_size=minibatch_size, shuffle=True)
 
     return train_loader

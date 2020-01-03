@@ -2,7 +2,7 @@ import torch, torch.nn as nn, torch.nn.functional as F
 import numpy as np
 
 class FraudNet(nn.Module):
-    def __init__(self):
+    def __init__(self, ch=1):
         super().__init__()
 
         self.no_categorical = 10
@@ -18,8 +18,24 @@ class FraudNet(nn.Module):
         self.embedding_layers = nn.ModuleList(embed_list)
 
         self.input_size = np.array(self.embedding_output_sizes).sum() + self.no_numerical
-
-        self.fc1 = nn.Linear(self.input_size, 1)
+        if ch==1:
+            self.fc1 = nn.Linear(self.input_size, 1)
+        if ch==2:
+            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
+            self.fc2 = nn.Linear(self.input_size/2, 1)
+        if ch==3:
+            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
+            self.fc2 = nn.Linear(self.input_size/2, self.input_size/4)
+            self.fc3 = nn.Linear(self.input_size/4, 1)
+        if ch==4:
+            self.fc1 = nn.Linear(self.input_size, self.input_size/2)
+            self.fc2 = nn.Linear(self.input_size/2, self.input_size/4)
+            self.fc3 = nn.Linear(self.input_size/4, self.input_size/8)
+            self.fc4 = nn.Linear(self.input_size/4, 1)
+        if ch==5:
+            
+            
+            
 #         self.fc2 = nn.Linear(16, 18)
 #         self.fc3 = nn.Linear(18, 20)
 #         self.fc4 = nn.Linear(20, 24)
