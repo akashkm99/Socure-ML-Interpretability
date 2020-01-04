@@ -3,3 +3,7 @@ __pycache__/
 dataset/
 saved_checkpoints/
 logs/
+shap/
+runs/
+shap_repo/
+log_smote

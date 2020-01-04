@@ -6,11 +6,12 @@ import sys
 from glob import glob
 from metrics import calc_metrics_classification
 import numpy as np
+from imblearn.over_sampling import SMOTENC
 from tensorboardX import SummaryWriter
 
+continuous = False
 
-
-def smote(X,y):
+def smote_func(X,y):
     
     X = X.cpu().data.numpy() 
     y = y.cpu().data.numpy() 
@@ -24,13 +25,11 @@ def smote(X,y):
     new_x = X_resampled[:,:-1]
     new_y = X_resampled[:,-1]
 
-    new_x = torch.from_numpy(new_x).to(device=device).float()
-    new_y = torch.from_numpy(new_y).to(device=device).float()
+    new_x = torch.from_numpy(new_x).to(device='cuda').float()
+    new_y = torch.from_numpy(new_y).to(device='cuda').float()
     return new_x, new_y
 
-
-
-def train(model_name='fraud_net', ch=1, tbd='logs', smote=True):
+def train(model_name='fraud_net', ch=1, tbd='logs', smote=False):
 
     no_epochs = 30
     lr = 1e-3
@@ -40,7 +39,7 @@ def train(model_name='fraud_net', ch=1, tbd='logs', smote=True):
     print ('Loading dataset ...')
     train_loader, valid_loader, test_loader = get_dataset(minibatch_size=batch_size)
 
-    net = FraudNet(ch).to(device='cuda').train()
+    net = FraudNet(ch,continuous).to(device='cuda').train()
     print ('Model:')
     print (net)
     
@@ -55,7 +54,7 @@ def train(model_name='fraud_net', ch=1, tbd='logs', smote=True):
             inputs, labels = data
 
             if smote:
-                inputs, labels = smote(inputs, labels)
+                inputs, labels = smote_func(inputs, labels)
 
             y_pred = net(inputs)
             mask = (labels > 0.5).float()
@@ -108,8 +107,15 @@ def test(model_name, ch):
     batch_size=64
     train_loader, valid_loader, test_loader = get_dataset(minibatch_size=batch_size)
 
-    net = FraudNet(ch).to(device='cuda')
-    path = glob('./saved_checkpoints/' + model_name + '_*')[0]
+    net = FraudNet(ch,continuous).to(device='cuda')
+    paths = glob('./saved_checkpoints/' + model_name + '_*')
+    print ('paths',paths)
+    test_loss = np.array([float(path.split('.th')[0].split('_')[-1]) for path in paths])
+    print (test_loss)
+    idx = np.argmin(test_loss)
+    print(idx)
+    path = paths[idx]
+
     net.load_state_dict(torch.load(path))
 
     loss = 0.0
@@ -160,7 +166,7 @@ def main():
     ch = int(sys.argv[2]) # number of layers
     tbd = sys.argv[3]
     print ('cuda',torch.cuda.is_available())
-    train(model_name=model_name, ch=ch, tbd=tbd)
+    # train(model_name=model_name, ch=ch, tbd=tbd, smote=True)
     test(sys.argv[1],int(sys.argv[2]))
 
 #     test_loader = get_dataset_test(minibatch_size=256)
