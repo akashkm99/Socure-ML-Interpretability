@@ -57,6 +57,7 @@ def importance_rank(name):
 
 
 if __name__ == "__main__":
+    # names = ['shap','rl','deeplift','gradients','integrated_gradients']
     names = ['shap','rl','deeplift','gradients','integrated_gradients']
     for name in names:
         importance_rank(name)
