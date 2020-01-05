@@ -20,7 +20,7 @@ def smote_func(X,y):
     
     X = np.concatenate([X,np.expand_dims(y,1)],axis=1)
 
-    smote_nc = SMOTENC(categorical_features=np.arange(0,10).tolist(), random_state=0)
+    smote_nc = SMOTENC(categorical_features=np.arange(0,10).tolist(), k_neighbors=3,random_state=0)
     X_resampled, y_resampled = smote_nc.fit_resample(X, y_cat)
     new_x = X_resampled[:,:-1]
     new_y = X_resampled[:,-1]
@@ -33,11 +33,11 @@ def train(model_name='fraud_net', ch=1, tbd='logs', smote=False):
 
     no_epochs = 30
     lr = 1e-3
-    batch_size=256
+    batch_size=1024
     weight_factor = 1.0#40.67    #weight given to class 1
 
     print ('Loading dataset ...')
-    train_loader, valid_loader, test_loader = get_dataset(minibatch_size=batch_size)
+    train_loader, valid_loader, test_loader = get_dataset(minibatch_size=batch_size, sampling='None')
 
     net = FraudNet(ch,continuous).to(device='cuda').train()
     print ('Model:')
@@ -115,8 +115,9 @@ def test(model_name, ch):
     idx = np.argmin(test_loss)
     print(idx)
     path = paths[idx]
+    print (path)
 
-    net.load_state_dict(torch.load(path))
+    # net.load_state_dict(torch.load(path))
 
     loss = 0.0
     steps = 0.0
@@ -126,6 +127,10 @@ def test(model_name, ch):
     predicted_list = []
     labels_list = []
     loss_list = []
+
+    loss = evaluate(test_loader, net)
+    print ('loss',loss)
+    exit()
 
     with torch.no_grad():
         for b, data in enumerate(test_loader):

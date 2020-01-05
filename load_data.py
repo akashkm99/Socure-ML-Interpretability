@@ -37,7 +37,7 @@ def preprocess(df):
         df[k].fillna(df[k].median(), inplace=True)
     return df
 
-def get_dataset(minibatch_size=64, sampling='repeat', device='cuda'):
+def get_dataset(minibatch_size=64, sampling='repeat', device='cuda', numpy=False):
 
     data = pd.read_csv('./dataset/competition-data/train.csv')
     
@@ -72,6 +72,9 @@ def get_dataset(minibatch_size=64, sampling='repeat', device='cuda'):
         np.savetxt('dataset/SMOTE_train_Y.txt', Y_train, delimiter=',')
         print(X_train.shape)
         return 
+    
+    if numpy:
+        return X_train, Y_train, X_val, Y_val, X_test, Y_test
         
     X_train = torch.from_numpy(X_train).to(device=device).float()
     Y_train = torch.from_numpy(Y_train).to(device=device).float()
@@ -101,15 +104,15 @@ def get_dataset_test(minibatch_size=64):
     data.isnull().sum().any()  #check for n/a
     """
 
-    X = data#.drop(columns="model_score")
+    X = data.drop(columns="id")
     X = preprocess(X).values
     sc = StandardScaler()
     
     X[:, 10:] = sc.fit_transform(X[:, 10:]) # normalize numeric data
     
     
-    X_train = torch.from_numpy(X).to(device='cuda')
-    train = data_utils.TensorDataset(X)
+    X_train = torch.from_numpy(X).to(device='cuda').float()
+    train = data_utils.TensorDataset(X_train)
     train_loader = data_utils.DataLoader(train, batch_size=minibatch_size, shuffle=True)
 
     return train_loader

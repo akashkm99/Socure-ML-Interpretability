@@ -7,3 +7,12 @@ shap/
 runs/
 shap_repo/
 log_smote
+RL_fc_0.3_0.02_3_attributes
+RL_logs/
+RL_runs/
+best_model/smote_sameWt_categorical_fc_0.3_5.log
+best_model/smote_sameWt_categorical_fc_0.3_5_0.194_0.194.th
+log_attributions/
+saved_attributions/
+saved_importance_rank/
+saved_rl_checkpoints/
